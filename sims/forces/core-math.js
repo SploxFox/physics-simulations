@@ -4,8 +4,15 @@ class Expression {
 		this.terms = terms;
 	}
 	simplify() {
-
+		
 	}
+	factor() {
+		var factors = {};
+		for(var i = 0; i < this.terms; i++){
+			if (factors[this.terms[i].variable]){}
+		};
+	}
+	
 }
 class Par extends Expression {
 
@@ -108,13 +115,13 @@ class Variable {
 }
 
 class Term{
-	constructor(coefficients,variables /* Both are arrays */){
+	constructor(coefficients /*Array of coeffecients, will be multiplied */,variable /* Variable may be an operation or a variable */){
 		this.coefficient = 1;
 		for (var i = 0; i < coefficients.length; i++) {
 			this.coefficient *= coefficients[i];
 		}
-		this.variables = variables;
-		this.containsVariables = (this.variables.length != 0);
+		this.variable = variable;
+		this.containsVariables = (this.variable != undefined);
 	}
 	getElement() {
 		var element = document.createElement("div");
@@ -123,11 +130,27 @@ class Term{
 		//Add the coefficient's element
 		element.appendChild(this.coefficient.getElement());
 
-		//Add the variable(s)
-		for (var i = 0; i < this.variables.length; i++){
+		//Add the variable(s) || Changed, we're not using this anymore
+		/*for (var i = 0; i < this.variables.length; i++){
 			element.appendChild(this.variables[i].getElement());
-		}
-
+		}*/
+		//Add the variable
+		element.appendChild(this.variable.getElement());
+		
+		//Add the coefficient
+		element.appendChild(this.coefficient.getElement());
 		return element;
 	}
+}
+
+
+///Physics
+class Unit extends Expression {
+	constructor(terms){
+		super(terms);
+	}
+}
+		
+function isEqual(t0,t1){
+	if (
 }
