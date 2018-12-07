@@ -1,14 +1,14 @@
 class Expression {
-	constructor(expr,terms){
-		this.expr = expr;
+	constructor(/*expr,*/terms){
+		//this.expr = expr;
 		this.terms = terms;
 	}
 	simplify() {
-		
+
 	}
 }
 class Par extends Expression {
-	
+
 }
 class Operation {
 	constructor(first,second){
@@ -16,7 +16,12 @@ class Operation {
 		this.second = second;
 	}
 }
-
+class Multiplication extends Operation {
+	constructor(factor1,factor2){
+		super(factor1,factor2);
+		this.factors = [factor1,factor2];
+	}
+}
 class Exponent extends Operation {
 	constructor(base,exponent){
 		super(base,exponent);
@@ -27,24 +32,41 @@ class Exponent extends Operation {
 		//Get the elements of the two components
 		var baseElement = this.base.getElement();
 		var expoValueElement = this.exponent.getElement();
-		
+
 		//Create the superscript exponent with its value inside
 		var expoElement = document.createElement("sup");
 		expoElement.appendChild(expoValueElement);
-		
+
 		//Put those all in a new element
 		var element = document.createElement("div");
 		element.classList.add("math");
 		element.appendChild(baseElement);
 		element.appendChild(expoElement);
-		
+
 		return element;
 	}
+	simplify() {
+		//First, we should simplify the base and the exponents
+		var simplified = new Exponent(this.base.simplify(),this.exponent.simplify())
+
+		//Now we should check if there are variables within any part of the operation
+		if (!this.containsVariables){
+			return Math.pow(simplified.base.value,simplified.exponent.value);
+		}
+		return simplified;
+	}
+	get containsVariables(){
+		return this.base.containsVariables || this.exponent.containsVariables
+	}
+	get value() {
+		return this.simplify();
+	}
 }
-	
+
 class Constant {
 	constructor(value /* Number */){
 		this.value = value;
+		this.containsVariables = false;
 	}
 	getElement() {
 		var element = document.createElement("span");
@@ -58,6 +80,7 @@ class Symbol {
 	constructor(letter,subscript){
 		this.letter = letter;
 		this.subscript = subscript;
+		this.containsVariables = true;
 	}
 }
 
@@ -65,11 +88,12 @@ class Variable {
 	constructor(name,symbol){
 		this.name = name;
 		this.symbol = symbol;
+		this.containsVariables = true;
 	}
 	getElement() {
 		var element = document.createElement("span");
 		element.textContent = this.symbol.letter;
-		
+
 		//Subscript stuff, like for F
 		//                            net
 		if (this.symbol.subscript != undefined) {
@@ -90,19 +114,20 @@ class Term{
 			this.coefficient *= coefficients[i];
 		}
 		this.variables = variables;
+		this.containsVariables = (this.variables.length != 0);
 	}
 	getElement() {
 		var element = document.createElement("div");
 		element.classList.add("math");
-		
+
 		//Add the coefficient's element
 		element.appendChild(this.coefficient.getElement());
-		
+
 		//Add the variable(s)
 		for (var i = 0; i < this.variables.length; i++){
 			element.appendChild(this.variables[i].getElement());
 		}
-		
+
 		return element;
 	}
 }
